@@ -28,7 +28,7 @@ class User < ActiveRecord::Base
 
   # 渡されたトークンがダイジェストと一致したらtrueを返す
   def authenticated?(attribute, token)
-    digest = send("#{attribute}_token")
+    digest = send("#{attribute}_digest")
     return false if digest.nil?
     BCrypt::Password.new(digest).is_password?(token)
   end
