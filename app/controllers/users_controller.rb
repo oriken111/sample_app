@@ -9,10 +9,11 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
+    @microposts = @user.microposts.paginate(page: params[:page])
   end
 
   def index
-    @users = User.order(name: :asc).paginate(page: params[:page], per_page: 10)
+    @users = User.paginate(page: params[:page], per_page: 10)
   end
 
   def create
@@ -42,7 +43,7 @@ class UsersController < ApplicationController
 
   def destroy
     User.find(params[:id]).destroy
-    flash[:success] = "User deleted"
+    flash[:success] = "ユーザーを削除しました！"
     redirect_to users_url
   end
 
@@ -53,20 +54,12 @@ class UsersController < ApplicationController
                                    :password_confirmation)
     end
 
-  def logged_in_user
-    unless logged_in?
-      store_location
-      flash[:danger] = "Please log in."
-      redirect_to login_path
+    def correct_user
+      @user = User.find(params[:id])
+      redirect_to root_path unless current_user?(@user)
     end
-  end
 
-  def correct_user
-    @user = User.find(params[:id])
-    redirect_to root_path unless current_user?(@user)
-  end
-
-  def admin_user
-    redirect_to(root_url) unless current_user.admin?
-  end
+    def admin_user
+      redirect_to(root_url) unless current_user.admin?
+    end
 end
